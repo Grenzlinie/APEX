@@ -5,7 +5,7 @@ import os
 import re
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.ext.matproj import Composition, MPRester
+from mp_api.client import MPRester
 
 from apex.core.lib import crys
 from dflow.python import upload_packages
@@ -31,12 +31,62 @@ def test_fit(struct, data):
 
 def make_path_mp(ii):
     pf = ii["pretty_formula"]
-    pf = re.sub("\d+", "", pf)
+    pf = re.sub(r"\d+", "", pf)
     task_id = ii["task_id"]
     work_path = "confs"
     work_path = os.path.join(work_path, pf)
     work_path = os.path.join(work_path, task_id)
     return work_path
+
+
+def _summary_doc_to_record(doc):
+    return {
+        "task_id": str(doc.material_id),
+        "pretty_formula": doc.formula_pretty,
+        "formula": doc.formula_pretty,
+        "anonymous_formula": doc.formula_anonymous,
+        "formation_energy_per_atom": doc.formation_energy_per_atom,
+        "energy_per_atom": doc.energy_per_atom,
+        "structure": doc.structure,
+    }
+
+
+def _query_element_docs(mpr, ele_name):
+    docs = mpr.materials.summary.search(
+        elements=[ele_name],
+        num_elements=1,
+        fields=[
+            "material_id",
+            "formula_pretty",
+            "formula_anonymous",
+            "formation_energy_per_atom",
+            "energy_per_atom",
+            "structure",
+            "elements",
+        ],
+    )
+    return [_summary_doc_to_record(doc) for doc in docs]
+
+
+def _query_alloy_docs(mpr, eles):
+    docs = mpr.materials.summary.search(
+        elements=eles,
+        num_elements=len(eles),
+        fields=[
+            "material_id",
+            "formula_pretty",
+            "formula_anonymous",
+            "formation_energy_per_atom",
+            "energy_per_atom",
+            "structure",
+            "elements",
+        ],
+    )
+    return [
+        _summary_doc_to_record(doc)
+        for doc in docs
+        if set(str(ele) for ele in doc.elements) == set(eles)
+    ]
 
 
 def gen_ele_std(ele_name, ctype):
@@ -53,19 +103,8 @@ def gen_ele_std(ele_name, ctype):
 
 def gen_element(ele_name, key):
     assert type(ele_name) == str
-    mpr = MPRester(key)
-    data = mpr.query(
-        {"elements": [ele_name], "nelements": 1},
-        properties=[
-            "task_id",
-            "pretty_formula",
-            "formula",
-            "anonymous_formula",
-            "formation_energy_per_atom",
-            "energy_per_atom",
-            "structure",
-        ],
-    )
+    with MPRester(key) as mpr:
+        data = _query_element_docs(mpr, ele_name)
     for ii in data:
         work_path = make_path_mp(ii)
         os.makedirs(work_path, exist_ok=True)
@@ -96,20 +135,8 @@ def gen_element_std(ele_name):
 
 def gen_alloy(eles, key):
 
-    mpr = MPRester(key)
-
-    data = mpr.query(
-        {"elements": {"$all": eles}, "nelements": len(eles)},
-        properties=[
-            "task_id",
-            "pretty_formula",
-            "formula",
-            "anonymous_formula",
-            "formation_energy_per_atom",
-            "energy_per_atom",
-            "structure",
-        ],
-    )
+    with MPRester(key) as mpr:
+        data = _query_alloy_docs(mpr, eles)
     if len(data) == 0:
         return
 
@@ -139,10 +166,10 @@ def _main():
 
     print("generate %s" % (args.elements))
     if len(args.elements) == 1:
-        gen_element(args.elements[0], key)
+        gen_element(args.elements[0], args.key)
         # gen_element_std(args.elements[0])
     else:
-        gen_alloy(args.elements, key)
+        gen_alloy(args.elements, args.key)
 
 
 if __name__ == "__main__":

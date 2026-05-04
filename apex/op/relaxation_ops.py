@@ -1,4 +1,4 @@
-import os, glob, pathlib, shutil, subprocess
+import os, glob, pathlib, shutil
 from pathlib import Path
 from typing import List
 from dflow.python import (
@@ -12,6 +12,10 @@ from apex.core.calculator import LAMMPS_INTER_TYPE
 from apex.utils import recursive_search
 
 upload_packages.append(__file__)
+
+
+def _unlink_if_exists(path):
+    Path(path).unlink(missing_ok=True)
 
 
 class RelaxMake(OP):
@@ -152,15 +156,11 @@ class RelaxPost(OP):
                 inter_files_name = ['POTCAR']
 
             for ii in conf_dirs:
-                cmd = 'rm -f'
                 for jj in inter_files_name:
-                    cmd += f' {jj}'
-                os.chdir(ii)
-                subprocess.call(cmd, shell=True)
-                os.chdir(op_in['input_all'])
-                os.chdir(os.path.join(ii, 'relaxation/relax_task'))
-                subprocess.call(cmd, shell=True)
-                os.chdir(op_in['input_all'])
+                    _unlink_if_exists(Path(op_in['input_all']) / ii / jj)
+                    _unlink_if_exists(
+                        Path(op_in['input_all']) / ii / 'relaxation' / 'relax_task' / jj
+                    )
 
         os.chdir(cwd)
         for ii in copy_dir_list:

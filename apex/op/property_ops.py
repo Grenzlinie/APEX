@@ -1,4 +1,4 @@
-import os, glob, pathlib, shutil, subprocess, logging
+import os, glob, pathlib, shutil, logging
 from pathlib import Path
 from monty.serialization import loadfn
 from typing import List
@@ -15,6 +15,10 @@ from apex.core.lib.utils import create_path
 from apex.core.calculator import LAMMPS_INTER_TYPE
 
 upload_packages.append(__file__)
+
+
+def _unlink_if_exists(path):
+    Path(path).unlink(missing_ok=True)
 
 
 class PropsMake(OP):
@@ -209,23 +213,21 @@ class PropsPost(OP):
         )
         # remove potential files in each task
         if inter_type in LAMMPS_INTER_TYPE:
-            os.chdir(abs_path_to_prop)
             inter_files_name = []
             if type(inter_param["model"]) is str:
                 inter_files_name = [inter_param["model"]]
             elif type(inter_param["model"]) is list:
                 inter_files_name.extend(inter_param["model"])
             for file in inter_files_name:
-                cmd = f"rm -f ../{file}"
-                subprocess.call(cmd, shell=True)
-                cmd = f"for kk in task.*; do rm -f $kk/{file}; done"
-                subprocess.call(cmd, shell=True)
+                _unlink_if_exists(abs_path_to_prop.parent / file)
+                for task_dir in abs_path_to_prop.glob("task.*"):
+                    if task_dir.is_dir():
+                        _unlink_if_exists(task_dir / file)
         elif inter_type == 'vasp':
-            os.chdir(abs_path_to_prop)
-            cmd = "rm -f ../POTCAR"
-            subprocess.call(cmd, shell=True)
-            cmd = f"for kk in task.*; do rm -f $kk/POTCAR; done"
-            subprocess.call(cmd, shell=True)
+            _unlink_if_exists(abs_path_to_prop.parent / "POTCAR")
+            for task_dir in abs_path_to_prop.glob("task.*"):
+                if task_dir.is_dir():
+                    _unlink_if_exists(task_dir / "POTCAR")
 
         os.chdir(cwd)
         for ii in copy_dir_list:

@@ -125,7 +125,7 @@ Bohrium platform provides pre-configured environments, automated scheduling, and
 #### Key Parameters
 
 - **Authentication**: Email, password, and Bohrium program ID
-- **Images**: APEX and LAMMPS Docker images (check [Bohrium Registry](https://www.bohrium.com/web-images/public))
+- **Images**: APEX and LAMMPS Docker images (check [Bohrium Registry](https://www.bohrium.com/web-images/public)); image tags may lag behind the Python package version, so use a tag that exists in the registry for your runtime.
 - **Resources**: `scass_type` specifies CPU cores, memory, and GPU (check [Bohrium Profiler](https://www.bohrium.com/profiler))
 
 #### Submission

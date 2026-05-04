@@ -27,8 +27,23 @@ setuptools.setup(
         "seekpath",
         "fpop>=0.0.7",
         "boto3",
-        "pymongo"
+        "pymongo",
+        "scipy",
+        "matplotlib",
+        "pandas",
+        "requests",
+        "PyYAML",
+        "dargs",
+        "packaging",
+        "mp-api",
     ],
+    extras_require={
+        "test": [
+            "coverage",
+            "mock",
+            "pytest",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",

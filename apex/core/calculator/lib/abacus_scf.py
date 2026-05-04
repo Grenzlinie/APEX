@@ -1,3 +1,4 @@
+import ast
 import os
 
 import numpy as np
@@ -9,6 +10,19 @@ from dargs.dargs import Argument
 upload_packages.append(__file__)
 
 bohr2ang = 0.52917721067
+
+
+def _parse_binary_int(value, key):
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "t", "yes"}:
+            value = 1
+        elif normalized in {"false", "f", "no"}:
+            value = 0
+        else:
+            value = int(normalized)
+    assert value == 0 or value == 1, f"'{key}' should be either 0 or 1."
+    return value
 
 
 def make_abacus_scf_kpt(fp_params):
@@ -63,11 +77,9 @@ def make_abacus_scf_input(fp_params):
         elif key == "dft_functional":
             ret += "dft_functional %s\n" % fp_params["dft_functional"]
         elif key == "gamma_only":
-            if type(fp_params["gamma_only"]) == str:
-                fp_params["gamma_only"] = int(eval(fp_params["gamma_only"]))
-            assert (
-                fp_params["gamma_only"] == 0 or fp_params["gamma_only"] == 1
-            ), "'gamma_only' should be either 0 or 1."
+            fp_params["gamma_only"] = _parse_binary_int(
+                fp_params["gamma_only"], "gamma_only"
+            )
             ret += "gamma_only %d\n" % fp_params["gamma_only"]
         elif key == "mixing_type":
             assert fp_params["mixing_type"] in [
@@ -86,11 +98,7 @@ def make_abacus_scf_input(fp_params):
             ), "'mixing_beta' should between 0 and 1."
             ret += "mixing_beta %f\n" % fp_params["mixing_beta"]
         elif key == "symmetry":
-            if type(fp_params["symmetry"]) == str:
-                fp_params["symmetry"] = int(eval(fp_params["symmetry"]))
-            assert (
-                fp_params["symmetry"] == 0 or fp_params["symmetry"] == 1
-            ), "'symmetry' should be either 0 or 1."
+            fp_params["symmetry"] = _parse_binary_int(fp_params["symmetry"], "symmetry")
             ret += "symmetry %d\n" % fp_params["symmetry"]
         elif key == "nbands":
             exam_int.check({"nbands": fp_params["nbands"]})
@@ -137,29 +145,20 @@ def make_abacus_scf_input(fp_params):
             ), "'smearing_sigma' should be non-negative."
             ret += "smearing_sigma %f\n" % fp_params["smearing_sigma"]
         elif key == "cal_force":
-            if type(fp_params["cal_force"]) == str:
-                fp_params["cal_force"] = int(eval(fp_params["cal_force"]))
-            assert (
-                fp_params["cal_force"] == 0 or fp_params["cal_force"] == 1
-            ), "'cal_force' should be either 0 or 1."
+            fp_params["cal_force"] = _parse_binary_int(fp_params["cal_force"], "cal_force")
             ret += "cal_force %d\n" % fp_params["cal_force"]
         elif key == "cal_stress":
-            if type(fp_params["cal_stress"]) == str:
-                fp_params["cal_stress"] = int(eval(fp_params["cal_stress"]))
-            assert (
-                fp_params["cal_stress"] == 0 or fp_params["cal_stress"] == 1
-            ), "'cal_stress' should be either 0 or 1."
+            fp_params["cal_stress"] = _parse_binary_int(fp_params["cal_stress"], "cal_stress")
             ret += "cal_stress %d\n" % fp_params["cal_stress"]
         # paras for deepks
         elif key == "deepks_out_labels":
             if type(fp_params["deepks_out_labels"]) == str:
-                fp_params["deepks_out_labels"] = int(
-                    eval(fp_params["deepks_out_labels"])
+                fp_params["deepks_out_labels"] = ast.literal_eval(
+                    fp_params["deepks_out_labels"]
                 )
-            assert (
-                fp_params["deepks_out_labels"] == 0
-                or fp_params["deepks_out_labels"] == 1
-            ), "'deepks_out_labels' should be either 0 or 1."
+            fp_params["deepks_out_labels"] = _parse_binary_int(
+                fp_params["deepks_out_labels"], "deepks_out_labels"
+            )
             ret += "deepks_out_labels %d\n" % fp_params["deepks_out_labels"]
         elif key == "deepks_descriptor_lmax":
             exam_int.check({"deepks_descriptor_lmax": fp_params["deepks_descriptor_lmax"]})
@@ -171,11 +170,7 @@ def make_abacus_scf_input(fp_params):
             ), "'deepks_descriptor_lmax' should be  a positive integer."
             ret += "deepks_descriptor_lmax %d\n" % fp_params["deepks_descriptor_lmax"]
         elif key == "deepks_scf":
-            if type(fp_params["deepks_scf"]) == str:
-                fp_params["deepks_scf"] = int(eval(fp_params["deepks_scf"]))
-            assert (
-                fp_params["deepks_scf"] == 0 or fp_params["deepks_scf"] == 1
-            ), "'deepks_scf' should be either 0 or 1."
+            fp_params["deepks_scf"] = _parse_binary_int(fp_params["deepks_scf"], "deepks_scf")
             ret += "deepks_scf %d\n" % fp_params["deepks_scf"]
         elif key == "deepks_model":
             ret += "deepks_model %s\n" % fp_params["deepks_model"]

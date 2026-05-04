@@ -25,14 +25,19 @@ def voigt_to_stress(inpt):
     return ret
 
 
-def insert_data(task, task_type, username, file_name):
+def insert_data(task, task_type, username, file_name, base_url=None, timeout=30):
     assert task in ["eos", "elastic", "surf"]
     assert task_type in ["vasp", "deepmd"]
+    base_url = base_url or os.environ.get("APEX_INSERT_DATA_URL")
+    if not base_url:
+        raise ValueError("Set base_url or APEX_INSERT_DATA_URL before uploading test data.")
     url = (
-        "http://115.27.161.2:5000/insert_test_data?username=%s&expr_type=%s&data_type=%s"
-        % (username, task_type, task)
+        f"{base_url.rstrip('/')}/insert_test_data"
+        f"?username={username}&expr_type={task_type}&data_type={task}"
     )
-    res = requests.post(url, data=open(file_name).read())
+    with open(file_name) as fp:
+        res = requests.post(url, data=fp.read(), timeout=timeout)
+    res.raise_for_status()
     print("Successful upload!")
 
 

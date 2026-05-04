@@ -1,6 +1,6 @@
 import os
 
-from pymatgen.ext.matproj import MPRester, MPRestError
+from mp_api.client import MPRester
 from dflow.python import upload_packages
 upload_packages.append(__file__)
 
@@ -17,14 +17,24 @@ def check_apikey():
         print('echo "export MAPI_KEY=yourkey">> ~/.bashrc')
         print("source ~/.bashrc")
         os._exit(0)
-    try:
-        return MPRester(apikey)
-    except MPRestError:
-        #dlog.info("MPRester Error, you need to prepare POSCAR manually")
-        print("MPRester Error, you need to prepare POSCAR manually")
-        os._exit(0)
+    return MPRester(apikey)
 
 
 def get_structure(mp_id):
-    mpr = check_apikey()
-    return mpr.get_structure_by_material_id(mp_id)
+    with check_apikey() as mpr:
+        try:
+            structure = mpr.get_structure_by_material_id(mp_id)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Failed to fetch structure for {mp_id} from Materials Project."
+            ) from exc
+        if structure is not None:
+            return structure
+        docs = mpr.materials.summary.search(
+            material_ids=[mp_id],
+            deprecated=True,
+            fields=["material_id", "structure"],
+        )
+        if docs and docs[0].structure is not None:
+            return docs[0].structure
+        raise RuntimeError(f"No structure found for {mp_id} from Materials Project.")

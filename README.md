@@ -3,7 +3,7 @@
 </div>
 
 # APEX: Alloy Property EXplorer
-[![](https://img.shields.io/badge/release-1.2.0-blue.svg)](https://github.com/deepmodeling/APEX)
+[![](https://img.shields.io/badge/release-1.3.0-blue.svg)](https://github.com/deepmodeling/APEX)
 
 
 
@@ -190,6 +190,10 @@ Create `global_bohrium.json` to submit workflows to the Bohrium cloud platform:
 ```
 
 <span style="color: red">**Important:** Replace `YOUR_EMAIL`, `YOUR_PASSWD` and `program_id` with your own Bohrium account credentials.</span>
+
+The `apex_image_name` value should match an image tag available in the Bohrium
+registry for your target runtime; example tags may lag behind the Python
+package version.
 
 ### 2.4. Submit Your First Workflow
 

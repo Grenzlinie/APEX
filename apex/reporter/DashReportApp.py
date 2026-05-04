@@ -51,7 +51,7 @@ def return_prop_type(prop: str):
 
 def generate_test_datasets():
     datasets = {
-        '/Users/zhuoyuan/labspace/ti-mo_test/Ti_test/DP_test': {
+        'example-workdir': {
             'confs/std-hcp': {
                 'result': {
                     'eos_00': {

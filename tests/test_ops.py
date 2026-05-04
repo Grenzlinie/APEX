@@ -131,7 +131,7 @@ class TestMakePropsOPs(unittest.TestCase):
         os.chdir('..')
         self.assertTrue(os.path.exists(self.vasp_dir/'confs'))
         self.assertTrue(os.path.exists(self.vasp_dir/'confs/std-bcc/eos_00'))
-        self.assertEqual(len(out['task_paths']), 2)
+        self.assertEqual(len(out['task_paths']), 3)
 
     def test_abacus_make_props(self):
         os.chdir(self.abacus_dir)
@@ -147,7 +147,7 @@ class TestMakePropsOPs(unittest.TestCase):
         os.chdir('..')
         self.assertTrue(os.path.exists(self.abacus_dir/'confs'))
         self.assertTrue(os.path.exists(self.abacus_dir/'confs/fcc-Al/eos_00'))
-        self.assertEqual(len(out['task_paths']), 2)
+        self.assertEqual(len(out['task_paths']), 3)
 
     def test_lammps_make_props(self):
         os.chdir('lammps_input')
@@ -163,7 +163,6 @@ class TestMakePropsOPs(unittest.TestCase):
         os.chdir('..')
         self.assertTrue(os.path.exists(self.lammps_dir/'confs'))
         self.assertTrue(os.path.exists(self.lammps_dir/'confs/std-bcc/eos_00'))
-        self.assertEqual(len(out['task_paths']), 2)
-
+        self.assertEqual(len(out['task_paths']), 3)
 
 
