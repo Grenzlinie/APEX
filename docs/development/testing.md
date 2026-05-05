@@ -6,7 +6,7 @@ APEX 测试应在本地保持确定性，同时尽量贴近真实计算器工作
 
 - GitHub Actions 当前使用 Python 3.11。
 - 安装命令：`pip install -e ".[test]"`。
-- 测试命令从 `tests/` 目录运行：`SKIP_UT_WITH_DFLOW=0 DFLOW_DEBUG=1 coverage run -m unittest -v -f`。
+- 测试命令从 `tests/` 目录运行：`coverage run -m unittest -v -f`，随后执行 `coverage report`。
 - 当前观察到的规范测试运行器是带 coverage 的 `unittest`。其他工具只有在有意加入后才算项目标准。
 
 ## Fixture 来源
@@ -35,4 +35,3 @@ APEX 测试应在本地保持确定性，同时尽量贴近真实计算器工作
 - 未经人类明确授权且凭证/资源不清楚时，不要运行真实 Bohrium、SSH/HPC、VASP、ABACUS 或长时间 LAMMPS 任务。
 - 如果某个改动无法用本地 fixture 验证，应说明需要的真实 API、可执行文件、输入、镜像或账户。
 - 执行真实验证时，要记录命令、环境、输入 fixture、结果 artifact 和所需清理动作。
-
