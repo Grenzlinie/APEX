@@ -30,6 +30,8 @@ debug_workdir/
 retrieve_pool/
 all_result.json
 *.log
+.codex/workplans/*
+!.codex/workplans/.gitkeep
 
 # OS/editor temporary files
 .DS_Store
