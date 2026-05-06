@@ -84,7 +84,14 @@ There are two ways to install APEX:
   ```shell
   git clone https://github.com/deepmodeling/APEX.git
   cd APEX
-  pip install .
+  python -m pip install .
+  ```
+
+  Developers can use `uv pip` as a faster installer without turning the
+  repository into a uv-managed project:
+
+  ```shell
+  uv pip install -e ".[test]"
   ```
 
 

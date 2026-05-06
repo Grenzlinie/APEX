@@ -141,9 +141,9 @@
                 </tr>
                 <tr>
                   <td>CI、安装、测试运行器、依赖</td>
-                  <td><code>.github/workflows/main.yml</code>、<code>setup.py</code></td>
-                  <td>Python 版本、<code>install_requires</code>、<code>extras_require["test"]</code>、pytest-cov 命令</td>
-                  <td>按 CI 命令验证：<code>cd tests && pytest --cov=apex --cov-report=term-missing --cov-report=xml</code></td>
+                  <td><code>.github/workflows/main.yml</code>、<code>pyproject.toml</code></td>
+                  <td>Python 版本、<code>[project].dependencies</code>、<code>[project.optional-dependencies].test</code>、pytest-cov 命令、uv pip 安装命令</td>
+                  <td>按 CI 命令验证：<code>uv pip install --system -e &quot;.[test]&quot;</code> 后运行 <code>cd tests && pytest --cov=apex --cov-report=term-missing --cov-report=xml</code></td>
                 </tr>
               </tbody>
             </table>

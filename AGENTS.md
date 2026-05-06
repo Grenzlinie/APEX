@@ -7,7 +7,7 @@
 ## 当前项目事实
 
 - APEX 是用于自动化合金性质工作流的 `apex-flow` Python 包。它负责准备计算任务、分发或本地运行任务、获取输出、归档结果并生成报告。
-- 包元数据当前位于 `setup.py`：包名 `apex-flow`，开发版本 `2.0.0.dev0`，目标发布版本 `2.0.0`，Python `>=3.10`，命令行入口 `apex = apex.__main__:main`，许可证 LGPLv3。
+- 包元数据当前位于 `pyproject.toml`：包名 `apex-flow`，开发版本 `2.0.0.dev0`，目标发布版本 `2.0.0`，Python `>=3.10`，命令行入口 `apex = apex.__main__:main`，许可证 LGPLv3。项目不使用 uv 项目管理或 `uv.lock`；开发和 CI 可使用 `uv pip` 安装环境。
 - 当前 GitHub Actions CI 使用 Python `3.11` 和 pytest-cov 覆盖率报告；规范测试命令见 `docs/development/testing.md` 和 `.github/workflows/main.yml`。
 - 公开用户流程由配置驱动：结构目录、一个或多个 `param_*.json` 文件，以及可选的全局配置，例如 `global_bohrium.json`。
 - 支持的计算器包括 LAMMPS 系列相互作用势、VASP 和 ABACUS。支持的执行路径包括本地 debug 模式、dflow/Argo、Bohrium，以及 DPDispatcher 的 SSH/HPC 或本地调度环境。

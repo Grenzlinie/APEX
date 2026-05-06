@@ -17,6 +17,7 @@ APEX 中所有用户可见的重要变化都应记录在这里。
 - 开发分支切换到 `exp-2.0.0`，包开发版本为 `2.0.0.dev0`，目标发布版本为 `2.0.0`。
 - 移除 CI 中已无实际用途的 `SKIP_UT_WITH_DFLOW` 和 `DFLOW_DEBUG` 环境变量。
 - 将 CI 测试入口从 `coverage run -m unittest` 切换为 pytest-cov，并明确新增测试应使用 pytest 风格。
+- 将包元数据从 `setup.py` 迁移到 `pyproject.toml`，并在 CI 中使用 `uv pip` 安装测试环境；仓库仍不采用 uv 项目管理或 `uv.lock`。
 
 ### Deprecated
 

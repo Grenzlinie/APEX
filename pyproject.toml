@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apex-flow"
+version = "2.0.0.dev0"
+description = "Alloy Properties EXplorer using simulations"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "LGPL-3.0-only"
+authors = [
+    { name = "Zhuoyuan Li", email = "zhuoyli@outlook.com" },
+    { name = "Tongqi Wen" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy<2.0.0",
+    "pydflow>=1.7.83",
+    "pymatgen>=2023.8.10",
+    "pymatgen-analysis-defects>=2023.8.22",
+    "dpdata==0.2.17",
+    "dpdispatcher",
+    "phonopy",
+    "plotly",
+    "dash",
+    "dash_bootstrap_components",
+    "seekpath",
+    "fpop>=0.0.7",
+    "boto3",
+    "pymongo",
+    "scipy",
+    "matplotlib",
+    "pandas",
+    "requests",
+    "PyYAML",
+    "dargs",
+    "packaging",
+    "mp-api",
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage",
+    "mock",
+    "pytest",
+    "pytest-cov",
+]
+
+[project.scripts]
+apex = "apex.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/deepmodeling/APEX.git"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["apex*"]
