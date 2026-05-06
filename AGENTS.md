@@ -60,6 +60,7 @@
 ## 辅助参考
 
 - 详细架构说明：`docs/development/architecture.md`
+- 需求到代码定位网页手册：`docs/developer-handbook/`，静态入口 `docs/index.html`
 - 测试策略和 fixture 要求：`docs/development/testing.md`
 - APEX 2.0 工程方向：`docs/development/apex-2-roadmap.md`
 - 人类-Codex 协作 SOP：`docs/development/collaboration-sop.md`

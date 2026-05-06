@@ -7,6 +7,7 @@
 - CLI 入口是 `apex/main.py`；`apex/__main__.py` 转发到该入口。
 - 公开子命令包括 `submit`、`do`、`retrieve`、`list`、`get`、`getsteps`、`getkeys`、`delete`、`archive` 和 `report`。
 - 用户工作流由结构目录、`param_*.json` 和可选全局配置驱动，例如 `global_bohrium.json`。
+- 面向“收到需求后快速定位代码”的网页手册位于 `docs/developer-handbook/`，可通过 `docs/index.html` 部署为静态站点。
 
 ## 主要执行路径
 
@@ -37,4 +38,3 @@
 - 部分外部命令路径仍使用 shell 执行。替换时要围绕命令参数和失败行为补测试，而不是只做机械改写。
 - `dpdata==0.2.17` 这类固定依赖，以及长期存在的 dflow 假设，应通过独立依赖 PR 处理，并包含安装和运行验证。
 - 旧 docs、Dockerfile 和镜像 tag 可能陈旧。使用前应对照当前代码、当前 registry 和当前服务文档验证。
-

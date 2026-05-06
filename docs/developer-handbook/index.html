@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>APEX 开发手册</title>
+    <meta name="description" content="面向 APEX 贡献者的需求定位、代码地图和验证手册。">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" aria-label="文档导航">
+        <a class="brand" href="#top" aria-label="APEX 开发手册首页">
+          <img src="../images/logo.png" alt="" class="brand-logo">
+          <span>
+            <strong>APEX</strong>
+            <small>开发手册</small>
+          </span>
+        </a>
+        <nav class="nav">
+          <a href="#how-to-use">使用方式</a>
+          <a href="#request-router">需求定位表</a>
+          <a href="#code-map">代码地图</a>
+          <a href="#property-workflow">新增或修改性质</a>
+          <a href="#calculator-workflow">计算器与调度</a>
+          <a href="#flow-workflow">工作流与 dflow</a>
+          <a href="#archive-report">归档与报告</a>
+          <a href="#tests">测试定位</a>
+          <a href="#change-checklist">修改检查清单</a>
+          <a href="#deploy">部署</a>
+        </nav>
+      </aside>
+
+      <main id="top" class="content">
+        <header class="page-header">
+          <p class="eyebrow">Developer Docs</p>
+          <h1>APEX 需求到代码定位手册</h1>
+          <p class="lead">
+            面向收到需求后的第一轮定位：先判断需求属于 CLI、workflow、property、calculator、archive/report、
+            config 还是测试，再沿着表格进入对应代码和验证路径。
+          </p>
+          <div class="quick-links" aria-label="常用入口">
+            <a href="../../AGENTS.md">开发契约</a>
+            <a href="../development/architecture.md">架构说明</a>
+            <a href="../development/testing.md">测试策略</a>
+            <a href="../../CHANGELOG.md">更新日志</a>
+          </div>
+        </header>
+
+        <section id="how-to-use" class="section">
+          <h2>使用方式</h2>
+          <div class="callout">
+            <strong>定位顺序：</strong>
+            先在“需求定位表”按关键词过滤，再读对应入口文件、核心实现和测试文件。非平凡改动继续查看
+            <a href="../development/collaboration-sop.md">协作 SOP</a>，必要时在 <code>.codex/workplans/</code> 写本地计划。
+          </div>
+          <div class="search-row">
+            <label for="router-search">过滤需求定位表</label>
+            <input id="router-search" type="search" placeholder="例如：新增性质、VASP、Bohrium、archive、rerun_finished">
+          </div>
+        </section>
+
+        <section id="request-router" class="section">
+          <h2>需求定位表</h2>
+          <div class="table-wrap">
+            <table id="router-table">
+              <thead>
+                <tr>
+                  <th>需求关键词</th>
+                  <th>先读入口</th>
+                  <th>核心修改位置</th>
+                  <th>测试与证据</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>新增 CLI 子命令、参数、帮助文本、命令行为</td>
+                  <td><code>apex/main.py</code></td>
+                  <td><code>parse_args()</code>、<code>main()</code>、被调用的 <code>*_from_args</code> 函数</td>
+                  <td><code>tests/</code> 中补解析和行为测试；用户可见变化同步 README 与 CHANGELOG</td>
+                </tr>
+                <tr>
+                  <td>submit、debug、本地/云端提交流程、上传目录裁剪</td>
+                  <td><code>apex/submit.py</code></td>
+                  <td><code>pack_upload_dir()</code>、<code>submit()</code>、<code>submit_workflow()</code>、<code>submit_from_args()</code></td>
+                  <td>覆盖目录形状、跳过已完成任务、上传排除文件；避免真实 Bohrium 除非明确授权</td>
+                </tr>
+                <tr>
+                  <td>apex do、make/run/post 单步调试</td>
+                  <td><code>apex/step.py</code></td>
+                  <td><code>do_step()</code> 到 <code>common_equi</code> 或 <code>common_prop</code> 的调用链</td>
+                  <td>运行前后检查 <code>git status</code>，因为本地步骤可能写入测试 fixture 目录</td>
+                </tr>
+                <tr>
+                  <td>dflow graph、OP、artifact、workflow 监控、跳过/复用任务</td>
+                  <td><code>apex/flow.py</code></td>
+                  <td><code>FlowGenerator</code>、<code>apex/op/relaxation_ops.py</code>、<code>apex/op/property_ops.py</code></td>
+                  <td><code>tests/test_ops.py</code> 以及本地 debug 与 dflow OP 路径分别验证</td>
+                </tr>
+                <tr>
+                  <td>新增性质、修改 EOS/elastic/surface/gamma 等科学逻辑</td>
+                  <td><code>apex/core/common_prop.py</code></td>
+                  <td><code>make_property_instance()</code>、<code>apex/core/property/*.py</code>、<code>Property</code> 抽象类</td>
+                  <td><code>tests/test_*.py</code> 对应性质测试；同步参数文档和 examples</td>
+                </tr>
+                <tr>
+                  <td>弛豫任务生成、结构输入、mismatch、relax result</td>
+                  <td><code>apex/core/common_equi.py</code></td>
+                  <td><code>make_equi()</code>、<code>run_equi()</code>、<code>post_equi()</code>、<code>StructureInfo</code></td>
+                  <td><code>tests/test_*_equi*.py</code>；fixture 需要接近真实 POSCAR/STRU/OUTCAR/log</td>
+                </tr>
+                <tr>
+                  <td>VASP、ABACUS、LAMMPS 输入文件、势函数、forward/backward 文件</td>
+                  <td><code>apex/core/calculator/calculator.py</code></td>
+                  <td><code>VASP.py</code>、<code>ABACUS.py</code>、<code>Lammps.py</code>、<code>Task.py</code></td>
+                  <td><code>tests/test_vasp*.py</code>、<code>tests/test_abacus*.py</code>、<code>tests/test_lammps.py</code></td>
+                </tr>
+                <tr>
+                  <td>global.json、Bohrium、SSH/HPC、DPDispatcher、镜像和运行命令</td>
+                  <td><code>apex/config.py</code></td>
+                  <td><code>Config</code> dataclass、<code>machine_dict</code>、<code>dispatcher_config_dict</code>、<code>basic_config_dict</code></td>
+                  <td>验证配置加载、默认值和错误路径；示例配置只能放占位符</td>
+                </tr>
+                <tr>
+                  <td>archive、all_result.json、MongoDB、DynamoDB、数据库 schema</td>
+                  <td><code>apex/archive.py</code></td>
+                  <td><code>ResultStorage</code>、<code>archive_workdir()</code>、<code>archive2db()</code>、<code>DatabaseFactory</code></td>
+                  <td>覆盖 local archive 和数据库参数分支；schema 改动需要迁移说明</td>
+                </tr>
+                <tr>
+                  <td>report、Dash 可视化、结果路径显示、tag</td>
+                  <td><code>apex/report.py</code></td>
+                  <td><code>report_local()</code>、<code>tag_dataset()</code>、<code>apex/reporter/</code></td>
+                  <td>使用最小 <code>all_result.json</code> fixture 验证；UI 变化需要手动查看</td>
+                </tr>
+                <tr>
+                  <td>公共 JSON 判断、flow 类型、suffix、路径工具</td>
+                  <td><code>apex/utils.py</code></td>
+                  <td><code>judge_flow()</code>、<code>get_flow_type()</code>、<code>handle_prop_suffix()</code>、<code>copy_all_other_files()</code></td>
+                  <td>公共 helper 改动要补交叉测试，避免影响 submit、do、archive 多条路径</td>
+                </tr>
+                <tr>
+                  <td>CI、安装、测试运行器、依赖</td>
+                  <td><code>.github/workflows/main.yml</code>、<code>setup.py</code></td>
+                  <td>Python 版本、<code>install_requires</code>、<code>extras_require["test"]</code>、coverage 命令</td>
+                  <td>按 CI 命令验证：<code>cd tests && coverage run -m unittest -v -f && coverage report</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="code-map" class="section">
+          <h2>代码地图</h2>
+          <div class="grid">
+            <article class="panel">
+              <h3>入口层</h3>
+              <p><code>apex/main.py</code> 定义 CLI、dflow 查询命令和顶层分发；<code>apex/__main__.py</code> 是 console script 入口。</p>
+            </article>
+            <article class="panel">
+              <h3>工作流层</h3>
+              <p><code>submit.py</code> 负责配置加载、上传目录、workflow 提交；<code>flow.py</code> 负责 dflow DAG、Step、Task 和监控。</p>
+            </article>
+            <article class="panel">
+              <h3>科学核心层</h3>
+              <p><code>common_equi.py</code> 管弛豫；<code>common_prop.py</code> 管性质；<code>property/</code> 放具体性质的任务生成和结果计算。</p>
+            </article>
+            <article class="panel">
+              <h3>计算器层</h3>
+              <p><code>calculator/</code> 按 VASP、ABACUS、LAMMPS 封装输入文件、势函数、任务文件列表和输出解析。</p>
+            </article>
+            <article class="panel">
+              <h3>结果层</h3>
+              <p><code>archive.py</code> 写 <code>all_result.json</code> 和数据库；<code>report.py</code> 与 <code>reporter/</code> 负责可视化。</p>
+            </article>
+            <article class="panel">
+              <h3>测试层</h3>
+              <p><code>tests/</code> 按 calculator、property、OP 和 fixture 分布；当前 CI 规范运行器是 coverage + unittest。</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="property-workflow" class="section">
+          <h2>新增或修改性质</h2>
+          <ol class="steps">
+            <li>在 <code>apex/core/property/</code> 找最接近的性质实现，确认目录形状、<code>task_type</code>、<code>task_param</code> 和 <code>_compute_lower()</code> 输出约定。</li>
+            <li>如果是新增性质，新增 property 类，并在 <code>apex/core/common_prop.py::make_property_instance()</code> 注册 <code>type</code>。</li>
+            <li>保持 property 层只处理性质科学逻辑；计算器输入/输出文件规则放在 <code>apex/core/calculator/</code>。</li>
+            <li>同步 README/examples 参数说明，必要时更新报告或 archive 对应展示。</li>
+            <li>补对应 <code>tests/test_*.py</code>，fixture 要覆盖任务目录、输入文件、结果解析和错误路径。</li>
+          </ol>
+        </section>
+
+        <section id="calculator-workflow" class="section">
+          <h2>计算器与调度</h2>
+          <p>
+            计算器需求通常从 <code>make_calculator()</code> 开始定位，再进入 <code>VASP</code>、<code>ABACUS</code> 或
+            <code>Lammps</code> 类。输入文件生成、势函数复制、<code>forward_files</code>、<code>backward_files</code> 和
+            <code>compute()</code> 都应保持 calculator 层内聚。
+          </p>
+          <div class="note-list">
+            <p><strong>VASP：</strong><code>tests/vasp_input/</code> 与 <code>tests/equi/vasp/</code> 是主要 fixture。</p>
+            <p><strong>ABACUS：</strong><code>STRU</code>、赝势和轨道文件路径需要同步检查，避免只测试 POSCAR。</p>
+            <p><strong>LAMMPS：</strong>模型文件、势函数文件和清理逻辑要同时检查本地路径与 OP retrieve 路径。</p>
+          </div>
+        </section>
+
+        <section id="flow-workflow" class="section">
+          <h2>工作流与 dflow</h2>
+          <p>
+            影响 graph、artifact 或并发调度的需求，先读 <code>FlowGenerator</code>，再读对应 OP。
+            APEX 同时有本地 <code>apex do</code> 和 dflow OP 路径，二者共享科学核心但 artifact plumbing 不同。
+          </p>
+          <div class="flow-lines">
+            <div><span>本地路径</span><code>main.py -> step.py -> common_equi/common_prop -> calculator/property</code></div>
+            <div><span>提交路径</span><code>main.py -> submit.py -> flow.py -> op/* -> common_equi/common_prop</code></div>
+            <div><span>结果路径</span><code>post_equi/post_property -> archive_workdir -> all_result.json -> report</code></div>
+          </div>
+        </section>
+
+        <section id="archive-report" class="section">
+          <h2>归档与报告</h2>
+          <p>
+            <code>archive_workdir()</code> 是本地结果归档的中心；<code>ResultStorage.sync_relax()</code> 和
+            <code>sync_props()</code> 决定 <code>all_result.json</code> 的结构。报告入口是 <code>report_local()</code>，
+            它接受 workdir 或 JSON 文件，并交给 Dash report app 展示。
+          </p>
+          <div class="callout warning">
+            archive schema、输出目录名和公开 JSON 键属于用户可见契约。没有迁移计划时，不要改名、移动或静默兼容。
+          </div>
+        </section>
+
+        <section id="tests" class="section">
+          <h2>测试定位</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>改动区域</th>
+                  <th>优先测试</th>
+                  <th>fixture</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>VASP calculator</td>
+                  <td><code>tests/test_vasp*.py</code></td>
+                  <td><code>tests/vasp_input/</code>、<code>tests/equi/vasp/</code></td>
+                </tr>
+                <tr>
+                  <td>ABACUS calculator</td>
+                  <td><code>tests/test_abacus*.py</code></td>
+                  <td><code>tests/abacus_input/</code>、<code>tests/equi/abacus/</code></td>
+                </tr>
+                <tr>
+                  <td>LAMMPS calculator</td>
+                  <td><code>tests/test_lammps.py</code></td>
+                  <td><code>tests/lammps_input/</code>、<code>tests/equi/lammps/</code></td>
+                </tr>
+                <tr>
+                  <td>Property</td>
+                  <td><code>tests/test_eos.py</code> 等对应性质文件</td>
+                  <td><code>tests/confs/</code>、<code>tests/output/</code></td>
+                </tr>
+                <tr>
+                  <td>dflow OP</td>
+                  <td><code>tests/test_ops.py</code></td>
+                  <td>最小 artifact 目录和 mock dflow 输入</td>
+                </tr>
+                <tr>
+                  <td>CI 基线</td>
+                  <td><code>cd tests && coverage run -m unittest -v -f && coverage report</code></td>
+                  <td>全部测试 fixture</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="change-checklist" class="section">
+          <h2>修改检查清单</h2>
+          <div class="checklist">
+            <label><input type="checkbox"> 已读 <code>AGENTS.md</code>、相关代码路径和现有测试。</label>
+            <label><input type="checkbox"> 明确需求影响 CLI、JSON schema、输出目录、archive schema、workflow graph 或依赖中的哪一类。</label>
+            <label><input type="checkbox"> 保留既有本地、dflow、dispatcher、archive 路径行为，或写清楚迁移边界。</label>
+            <label><input type="checkbox"> 用户可见变更已同步 README/examples 和 <code>CHANGELOG.md</code>。</label>
+            <label><input type="checkbox"> 已运行针对性测试；必要时运行 CI 等价 unittest 命令。</label>
+            <label><input type="checkbox"> 提交前已检查 <code>git status --short</code> 和 <code>git diff</code>。</label>
+          </div>
+        </section>
+
+        <section id="deploy" class="section">
+          <h2>部署</h2>
+          <p>
+            这套手册是纯静态文件。为保证 <code>AGENTS.md</code>、<code>CHANGELOG.md</code>
+            和 <code>docs/</code> 内文档都能离线访问，建议从仓库根目录启动静态服务器。
+          </p>
+          <pre><code>uv run python -m http.server 8000 --bind 127.0.0.1</code></pre>
+          <p>
+            然后访问 <code>http://127.0.0.1:8000/docs/developer-handbook/</code>。
+            <code>uv run python -m html.parser docs/index.html docs/developer-handbook/index.html</code>
+            只做静默语法校验，不会启动网页服务。
+          </p>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
