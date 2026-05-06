@@ -6,8 +6,9 @@ APEX 测试应在本地保持确定性，同时尽量贴近真实计算器工作
 
 - GitHub Actions 当前使用 Python 3.11。
 - 安装命令：`pip install -e ".[test]"`。
-- 测试命令从 `tests/` 目录运行：`coverage run -m unittest -v -f`，随后执行 `coverage report`。
-- 当前观察到的规范测试运行器是带 coverage 的 `unittest`。其他工具只有在有意加入后才算项目标准。
+- 测试命令从 `tests/` 目录运行：`pytest --cov=apex --cov-report=term-missing --cov-report=xml`。
+- 当前规范测试运行器是带 `pytest-cov` 覆盖率报告的 `pytest`。`pytest-cov` 是 pytest 插件，底层仍使用 coverage.py；其他工具只有在有意加入后才算项目标准。
+- 存量 `unittest.TestCase` 测试可以保留；新增测试以及 AI Agent 后续编写的测试应使用 pytest 风格，例如普通 `test_*` 函数、`assert`、`pytest.raises`、fixture 和参数化。
 
 ## Fixture 来源
 

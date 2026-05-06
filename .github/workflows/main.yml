@@ -23,9 +23,10 @@ jobs:
         pip install -e ".[test]"
     - name: Test
       run: |
-        cd tests 
-        coverage run -m unittest -v -f 
-        coverage report
+        cd tests
+        pytest --cov=apex --cov-report=term-missing --cov-report=xml
     - uses: codecov/codecov-action@v6
+      with:
+        files: tests/coverage.xml
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -142,8 +142,8 @@
                 <tr>
                   <td>CI、安装、测试运行器、依赖</td>
                   <td><code>.github/workflows/main.yml</code>、<code>setup.py</code></td>
-                  <td>Python 版本、<code>install_requires</code>、<code>extras_require["test"]</code>、coverage 命令</td>
-                  <td>按 CI 命令验证：<code>cd tests && coverage run -m unittest -v -f && coverage report</code></td>
+                  <td>Python 版本、<code>install_requires</code>、<code>extras_require["test"]</code>、pytest-cov 命令</td>
+                  <td>按 CI 命令验证：<code>cd tests && pytest --cov=apex --cov-report=term-missing --cov-report=xml</code></td>
                 </tr>
               </tbody>
             </table>
@@ -175,7 +175,7 @@
             </article>
             <article class="panel">
               <h3>测试层</h3>
-              <p><code>tests/</code> 按 calculator、property、OP 和 fixture 分布；当前 CI 规范运行器是 coverage + unittest。</p>
+              <p><code>tests/</code> 按 calculator、property、OP 和 fixture 分布；当前 CI 规范运行器是 pytest + pytest-cov。</p>
             </article>
           </div>
         </section>
@@ -269,7 +269,7 @@
                 </tr>
                 <tr>
                   <td>CI 基线</td>
-                  <td><code>cd tests && coverage run -m unittest -v -f && coverage report</code></td>
+                  <td><code>cd tests && pytest --cov=apex --cov-report=term-missing --cov-report=xml</code></td>
                   <td>全部测试 fixture</td>
                 </tr>
               </tbody>
@@ -284,7 +284,7 @@
             <label><input type="checkbox"> 明确需求影响 CLI、JSON schema、输出目录、archive schema、workflow graph 或依赖中的哪一类。</label>
             <label><input type="checkbox"> 保留既有本地、dflow、dispatcher、archive 路径行为，或写清楚迁移边界。</label>
             <label><input type="checkbox"> 用户可见变更已同步 README/examples 和 <code>CHANGELOG.md</code>。</label>
-            <label><input type="checkbox"> 已运行针对性测试；必要时运行 CI 等价 unittest 命令。</label>
+            <label><input type="checkbox"> 已运行针对性测试；必要时运行 CI 等价 pytest-cov 命令。</label>
             <label><input type="checkbox"> 提交前已检查 <code>git status --short</code> 和 <code>git diff</code>。</label>
           </div>
         </section>

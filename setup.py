@@ -42,6 +42,7 @@ setuptools.setup(
             "coverage",
             "mock",
             "pytest",
+            "pytest-cov",
         ],
     },
     classifiers=[
